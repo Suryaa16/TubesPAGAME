@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug or Die</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Mute Button (global) -->
+    <button id="mute-btn" onclick="toggleMute()">🔊</button>
+
+    <!-- VN SCREEN -->
+    <div id="vn-screen" class="screen active">
+      <div id="vn-background"></div>
+      <div id="vn-episode">DEBUG OR DIE — EPISODE 01</div>
+      <div id="vn-character"></div>
+      <div id="vn-textbox">
+        <div id="vn-name"></div>
+        <div id="vn-text"></div>
+        <div id="vn-next">[ KLIK UNTUK LANJUT ]</div>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+      <div id="hud">
+        <span id="stage-info">STAGE 1 / 4</span>
+        <span id="timer">⏱ 60</span>
+        <div id="hud-right">
+          <span id="hints">💡 3</span>
+        </div>
+      </div>
+      <div id="stage-title">BOM #1 — SERVER ROOM</div>
+      <div id="code-display"></div>
+      <div id="bottom-panel">
+        <div id="question-text"></div>
+        <div id="answer-buttons">
+          <button class="answer-btn" id="btn-a"></button>
+          <button class="answer-btn" id="btn-b"></button>
+          <button class="answer-btn" id="btn-c"></button>
+        </div>
+        <div id="feedback-row">
+          <div id="feedback"></div>
+          <button id="hint-btn">💡 HINT (-10s)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAMEOVER SCREEN -->
+    <div id="gameover-screen" class="screen">
+      <h1>💥 BOOM!</h1>
+      <p id="gameover-msg"></p>
+      <button id="restart-btn">COBA LAGI</button>
+    </div>
+
+    <!-- WIN SCREEN -->
+    <div id="win-screen" class="screen">
+      <h1>SISTEM AMAN</h1>
+      <p id="win-msg"></p>
+      <div id="score-display"></div>
+      <button id="play-again-btn">MAIN LAGI</button>
+    </div>
+
+    <script src="assets/characters.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="data/dialog.js"></script>
+    <script src="js/vn.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

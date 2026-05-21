@@ -1,0 +1,542 @@
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0d0d1a;
+  font-family: "Share Tech Mono", monospace;
+  color: white;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── SCREEN SYSTEM ─── */
+.screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── VN SCREEN ─── */
+#vn-screen {
+  justify-content: flex-end;
+  position: relative;
+}
+
+#vn-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  transition: background 0.5s ease;
+  background: #1a1a2e;
+}
+
+/* Grid scanline effect */
+#vn-background::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+}
+
+#vn-character {
+  position: absolute;
+  bottom: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 320px;
+  z-index: 1;
+  filter: drop-shadow(0 0 20px rgba(233, 69, 96, 0.3));
+  transition: opacity 0.4s ease;
+}
+
+#vn-character img {
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+#vn-textbox {
+  position: relative;
+  z-index: 2;
+  background: rgba(10, 10, 20, 0.97);
+  border-top: 2px solid #e94560;
+  padding: 24px 48px 20px;
+  min-height: 170px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+#vn-textbox::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: #4ecca3;
+}
+
+#vn-name {
+  font-family: "Orbitron", monospace;
+  color: #e94560;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+#vn-name.aria {
+  color: #4ecca3;
+}
+#vn-name.sistem {
+  color: #f5a623;
+}
+
+#vn-text {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #e8e8f0;
+  min-height: 60px;
+}
+
+#vn-next {
+  text-align: right;
+  color: #533483;
+  font-size: 12px;
+  margin-top: 12px;
+  letter-spacing: 1px;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* VN Episode label */
+#vn-episode {
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  z-index: 3;
+  font-family: "Orbitron", monospace;
+  font-size: 11px;
+  color: #533483;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ─── GAME SCREEN ─── */
+#game-screen {
+  background: #0a0a14;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  gap: 0;
+}
+
+/* HUD Bar */
+#hud {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 12px 28px;
+  background: #0d0d1a;
+  border-bottom: 1px solid #1e1e3a;
+}
+
+#hud::after {
+  content: "DEBUG OR DIE";
+  font-family: "Orbitron", monospace;
+  font-size: 13px;
+  color: #e94560;
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+#stage-info {
+  font-size: 13px;
+  color: #533483;
+  letter-spacing: 2px;
+  text-align: left;
+}
+
+#timer {
+  font-family: "Orbitron", monospace;
+  font-size: 22px;
+  color: #e94560;
+  font-weight: 700;
+  text-align: center;
+}
+
+#hints {
+  font-size: 14px;
+  color: #f5a623;
+  text-align: right;
+}
+
+#hud-timer {
+  font-family: "Orbitron", monospace;
+  font-size: 22px;
+  color: #e94560;
+  font-weight: 700;
+  text-align: right;
+  display: none;
+}
+
+#hud-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+/* Stage Title */
+#stage-title {
+  width: 100%;
+  padding: 14px 28px;
+  background: linear-gradient(90deg, rgba(233, 69, 96, 0.15), transparent);
+  border-left: 3px solid #e94560;
+  font-family: "Orbitron", monospace;
+  font-size: 12px;
+  color: #e94560;
+  letter-spacing: 3px;
+  margin-bottom: 0;
+}
+
+/* Code Display */
+#code-display {
+  width: 100%;
+  background: #0d1117;
+  border-top: 1px solid #1e1e3a;
+  border-bottom: 1px solid #1e1e3a;
+  padding: 20px 28px;
+  font-size: 15px;
+  line-height: 2;
+  white-space: pre;
+  color: #8b949e;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+#code-display .line {
+  display: block;
+  position: relative;
+  padding-left: 48px;
+}
+#code-display .line-num {
+  position: absolute;
+  left: 0;
+  width: 36px;
+  text-align: right;
+  color: #30363d;
+  user-select: none;
+}
+
+#code-display .line.error-line {
+  background: rgba(233, 69, 96, 0.12);
+}
+#code-display .line.error-line .line-num {
+  color: #e94560;
+}
+#code-display .keyword {
+  color: #ff7b72;
+}
+#code-display .function {
+  color: #d2a8ff;
+}
+#code-display .string {
+  color: #a5d6ff;
+}
+#code-display .number {
+  color: #79c0ff;
+}
+#code-display .comment {
+  color: #8b949e;
+}
+#code-display .normal {
+  color: #c9d1d9;
+}
+
+/* Bottom Panel */
+#bottom-panel {
+  width: 100%;
+  padding: 16px 28px;
+  background: #0d0d1a;
+  border-top: 1px solid #1e1e3a;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#question-text {
+  font-size: 13px;
+  color: #a0a0c0;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+#answer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.answer-btn {
+  padding: 10px 16px;
+  background: #13131f;
+  border: 1px solid #1e1e3a;
+  border-radius: 4px;
+  color: #c9d1d9;
+  font-size: 14px;
+  font-family: "Share Tech Mono", monospace;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.answer-btn:hover:not(:disabled) {
+  background: #1e1e3a;
+  border-color: #533483;
+  color: white;
+}
+
+.answer-btn.correct {
+  background: rgba(78, 204, 163, 0.15);
+  border-color: #4ecca3;
+  color: #4ecca3;
+}
+
+.answer-btn.wrong {
+  background: rgba(233, 69, 96, 0.15);
+  border-color: #e94560;
+  color: #e94560;
+}
+
+.answer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Feedback & Hint Row */
+#feedback-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+#feedback {
+  font-size: 13px;
+  color: #a0a0c0;
+  flex: 1;
+  min-height: 20px;
+}
+
+#hint-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #f5a623;
+  border-radius: 4px;
+  color: #f5a623;
+  font-size: 12px;
+  font-family: "Share Tech Mono", monospace;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  letter-spacing: 1px;
+}
+
+#hint-btn:hover:not(:disabled) {
+  background: rgba(245, 166, 35, 0.1);
+}
+
+#hint-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ─── GAMEOVER SCREEN ─── */
+#gameover-screen {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+  padding: 40px;
+  background: radial-gradient(ellipse at center, #1a0505 0%, #0d0d1a 70%);
+}
+
+#gameover-screen h1 {
+  font-family: "Orbitron", monospace;
+  font-size: 72px;
+  color: #e94560;
+  text-shadow: 0 0 40px rgba(233, 69, 96, 0.8);
+  animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+  0%,
+  100% {
+    text-shadow: 0 0 40px rgba(233, 69, 96, 0.8);
+  }
+  50% {
+    text-shadow:
+      0 0 80px rgba(233, 69, 96, 1),
+      0 0 120px rgba(233, 69, 96, 0.4);
+  }
+}
+
+#gameover-msg {
+  font-size: 16px;
+  color: #a0a0c0;
+  max-width: 500px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+#mute-btn {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 9999;
+  background: transparent;
+  border: 1px solid #533483;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#mute-btn:hover {
+  background: rgba(83, 52, 131, 0.3);
+}
+
+/* ─── WIN SCREEN ─── */
+#win-screen {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  padding: 40px;
+  background: radial-gradient(ellipse at center, #051a10 0%, #0d0d1a 70%);
+}
+
+#win-screen h1 {
+  font-family: "Orbitron", monospace;
+  font-size: 64px;
+  color: #4ecca3;
+  text-shadow: 0 0 40px rgba(78, 204, 163, 0.8);
+}
+
+#win-msg {
+  font-size: 16px;
+  color: #a0a0c0;
+  max-width: 560px;
+  line-height: 1.8;
+}
+
+#score-display {
+  background: #13131f;
+  border: 1px solid #1e1e3a;
+  border-radius: 8px;
+  padding: 20px 40px;
+  font-family: "Orbitron", monospace;
+  line-height: 2;
+}
+
+/* Shared button style */
+#restart-btn,
+#play-again-btn {
+  padding: 14px 36px;
+  background: transparent;
+  border: 2px solid #e94560;
+  border-radius: 4px;
+  color: #e94560;
+  font-size: 15px;
+  font-family: "Orbitron", monospace;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+}
+
+#play-again-btn {
+  border-color: #4ecca3;
+  color: #4ecca3;
+}
+
+#restart-btn:hover {
+  background: rgba(233, 69, 96, 0.1);
+}
+#play-again-btn:hover {
+  background: rgba(78, 204, 163, 0.1);
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(10px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes danger-pulse {
+  0%,
+  100% {
+    border-top-color: #e94560;
+  }
+  50% {
+    border-top-color: #ff0000;
+  }
+}
+
+.danger #vn-textbox {
+  animation: danger-pulse 0.5s infinite;
+}
