@@ -4,6 +4,32 @@ let hintsLeft = 3;
 let timerInterval = null;
 let score = 0;
 let wrongAnswers = 0;
+let transitioning = false;
+let monacoEditor = null;
+
+function initMonaco(code, language) {
+  document.getElementById("code-display").style.display = "none";
+  document.getElementById("monaco-container").style.display = "block";
+
+  require(["vs/editor/editor.main"], function () {
+    if (monacoEditor) {
+      monacoEditor.dispose();
+      monacoEditor = null;
+    }
+    monacoEditor = monaco.editor.create(
+      document.getElementById("monaco-container"),
+      {
+        value: code,
+        language: language,
+        theme: "vs-dark",
+        fontSize: 14,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+      },
+    );
+  });
+}
 
 function renderCode(code, errorLine) {
   const lines = code.split("\n");
@@ -63,8 +89,27 @@ function startGame() {
 }
 
 function loadStage(index) {
+  transitioning = false;
   const stage = stageData[index];
   timeLeft = stage.timeLimit;
+
+  // Cek apakah Chapter 4 (stage index 12 ke atas = stage 13-16)
+  if (index >= 12) {
+    initMonaco(stage.code, stage.language || "python");
+    document.getElementById("hint-btn").style.display = "block";
+
+    // Ganti answer buttons jadi tombol Execute
+    document.getElementById("answer-buttons").style.display = "none";
+    document.getElementById("execute-btn").style.display = "block";
+    document.getElementById("execute-btn").onclick = () =>
+      checkMonacoAnswer(stage);
+  } else {
+    document.getElementById("code-display").style.display = "block";
+    document.getElementById("monaco-container").style.display = "none";
+    document.getElementById("hint-btn").style.display = "block";
+    document.getElementById("answer-buttons").style.display = "flex";
+    document.getElementById("execute-btn").style.display = "none";
+  }
 
   // Update HUD
   document.getElementById("stage-info").textContent = `Stage ${index + 1} / 4`;
@@ -102,6 +147,33 @@ function loadStage(index) {
   timerInterval = setInterval(tickTimer, 1000);
 }
 
+function checkMonacoAnswer(stage) {
+  if (transitioning) return;
+  const userCode = monacoEditor.getValue();
+
+  // Cek apakah fix yang benar ada di kode pemain
+  const correct = stage.answers[stage.correct];
+
+  if (userCode.includes(correct)) {
+    transitioning = true;
+    Audio.play("correct");
+    document.getElementById("feedback").textContent =
+      `✅ BENAR! ${stage.explanation}`;
+    document.getElementById("feedback").style.color = "#4ecca3";
+    clearInterval(timerInterval);
+    score += timeLeft * 10;
+    setTimeout(() => nextStage(), 2000);
+  } else {
+    Audio.play("wrong");
+    timeLeft = Math.max(0, timeLeft - 10);
+    wrongAnswers++;
+    updateTimerDisplay();
+    document.getElementById("feedback").textContent =
+      `❌ SALAH! Cek kode kamu lagi. Timer -10 detik!`;
+    document.getElementById("feedback").style.color = "#e94560";
+  }
+}
+
 function tickTimer() {
   if (timeLeft <= 10) {
     Audio.play("tick");
@@ -130,12 +202,14 @@ function updateTimerDisplay() {
 }
 
 function checkAnswer(selected) {
+  if (transitioning) return;
+
   const stage = stageData[currentStage];
   const labels = ["a", "b", "c"];
   const btn = document.getElementById(`btn-${labels[selected]}`);
 
   if (selected === stage.correct) {
-    // Benar!
+    transitioning = true;
     Audio.play("correct");
     btn.classList.add("correct");
     document.getElementById("feedback").textContent =
@@ -181,61 +255,66 @@ function useHint() {
   timeLeft = Math.max(1, timeLeft - 10);
   updateTimerDisplay();
 
-  // Highlight baris yang error baru muncul setelah pakai hint
-  const lines = document.querySelectorAll("#code-display .line");
-  lines.forEach((line) => {
-    if (parseInt(line.dataset.line) === stage.errorLine) {
-      line.style.background = "rgba(233,69,96,0.12)";
-      line.querySelector(".line-num").style.color = "#e94560";
-    }
-  });
+  // Cek apakah Monaco mode
+  if (currentStage >= 12 && monacoEditor) {
+    // Highlight baris error di Monaco
+    monaco.editor.setModelMarkers(monacoEditor.getModel(), "hint", [
+      {
+        startLineNumber: stage.errorLine,
+        endLineNumber: stage.errorLine,
+        startColumn: 1,
+        endColumn: 100,
+        message: `Bug ada di sini!`,
+        severity: monaco.MarkerSeverity.Error,
+      },
+    ]);
+    monacoEditor.revealLineInCenter(stage.errorLine);
+    document.getElementById("feedback").textContent =
+      `💡 Hint: Bug di baris ${stage.errorLine}! (-10 detik)`;
+  } else {
+    // Hint biasa untuk pilihan ganda
+    const lines = document.querySelectorAll("#code-display .line");
+    lines.forEach((line) => {
+      if (parseInt(line.dataset.line) === stage.errorLine) {
+        line.style.background = "rgba(233,69,96,0.12)";
+        line.querySelector(".line-num").style.color = "#e94560";
+      }
+    });
+    document.getElementById("feedback").textContent =
+      `💡 Hint: Perhatikan baris ${stage.errorLine}! (-10 detik)`;
+  }
 
-  document.getElementById("feedback").textContent =
-    `💡 Hint: Perhatikan baris ${stage.errorLine}! (-10 detik)`;
   document.getElementById("feedback").style.color = "#f5a623";
   document.getElementById("hints").textContent = `💡 ${hintsLeft}`;
-
-  if (hintsLeft === 0) {
-    document.getElementById("hint-btn").disabled = true;
-  }
+  if (hintsLeft === 0) document.getElementById("hint-btn").disabled = true;
 }
 
 function nextStage() {
   currentStage++;
 
   if (currentStage >= stageData.length) {
-    // Semua stage selesai → WIN!
     winGame();
     return;
   }
 
-  // Tampilkan dialog transisi ARIA dulu
+  // Tanya mau save dulu
+  showSavePrompt(() => {
+    showTransitionDialog(ariaTransitions[currentStage - 1], () => {
+      loadStage(currentStage);
+    });
+  });
+
+  console.log("nextStage dipanggil, currentStage:", currentStage);
+  console.log("stageData.length:", stageData.length);
+  console.log("ariaTransitions:", ariaTransitions);
+
+  if (currentStage >= stageData.length) {
+    winGame();
+    return;
+  }
+
   showTransitionDialog(ariaTransitions[currentStage - 1], () => {
     loadStage(currentStage);
-  });
-}
-
-function showTransitionDialog(text, callback) {
-  // Overlay dialog singkat
-  const overlay = document.createElement("div");
-  overlay.style.cssText = `
-        position: fixed; top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        background: rgba(13,13,26,0.95);
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        z-index: 999; cursor: pointer;
-        padding: 40px; text-align: center;
-    `;
-  overlay.innerHTML = `
-        <div style="color:#4ecca3; font-size:18px; margin-bottom:20px;">ARIA</div>
-        <div style="color:#e0e0e0; font-size:16px; line-height:1.8; max-width:600px;">${text}</div>
-        <div style="color:#533483; font-size:13px; margin-top:30px;">▶ Klik untuk lanjut</div>
-    `;
-  document.body.appendChild(overlay);
-  overlay.addEventListener("click", () => {
-    document.body.removeChild(overlay);
-    callback();
   });
 }
 

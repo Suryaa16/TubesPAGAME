@@ -540,3 +540,141 @@ body {
 .danger #vn-textbox {
   animation: danger-pulse 0.5s infinite;
 }
+
+#start-screen {
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: radial-gradient(ellipse at center, #1a0a2e 0%, #0d0d1a 70%);
+  gap: 16px;
+}
+
+.start-logo {
+  font-family: "Courier New", monospace;
+  font-size: 64px;
+  font-weight: 900;
+  color: #e94560;
+  text-shadow: 0 0 40px rgba(233, 69, 96, 0.8);
+  letter-spacing: 8px;
+  margin-bottom: 16px;
+}
+
+#btn-new-game {
+  padding: 14px 48px;
+  background: #e94560;
+  border: none;
+  color: white;
+  font-size: 16px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+#btn-new-game:hover {
+  background: transparent;
+  border: 2px solid #e94560;
+  color: #e94560;
+}
+
+#btn-load {
+  padding: 12px 48px;
+  background: transparent;
+  border: 2px solid #533483;
+  color: #533483;
+  font-size: 15px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+#btn-load:hover {
+  border-color: #4ecca3;
+  color: #4ecca3;
+}
+
+#load-screen {
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: radial-gradient(ellipse at center, #0a0a0a 0%, #0d0d1a 70%);
+  gap: 24px;
+}
+
+#load-title {
+  font-family: "Courier New", monospace;
+  font-size: 32px;
+  letter-spacing: 8px;
+  color: #c8a951;
+  text-transform: uppercase;
+  border-bottom: 1px solid #c8a951;
+  padding-bottom: 12px;
+  width: 480px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+#load-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 480px;
+}
+
+.save-slot {
+  background: rgba(20, 16, 10, 0.9);
+  border: 1px solid #3a3020;
+  border-left: 4px solid #c8a951;
+  padding: 18px 24px;
+  color: #c8a951;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+
+.save-slot:hover {
+  background: rgba(200, 169, 81, 0.12);
+  border-left: 4px solid #fff;
+  color: #fff;
+}
+
+.save-slot.empty {
+  color: #4a4030;
+  border-left-color: #3a3020;
+}
+
+#btn-back {
+  margin-top: 8px;
+  padding: 10px 32px;
+  background: transparent;
+  border: 1px solid #4a4030;
+  color: #4a4030;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#btn-back:hover {
+  border-color: #c8a951;
+  color: #c8a951;
+}
+
+#mute-btn {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 9999;
+}
+
+#hud-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 60px;
+}

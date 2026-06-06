@@ -50,14 +50,14 @@ function typeWriter(text) {
   const el = document.getElementById("vn-text");
   el.textContent = "";
 
-  // Stop typewriter sebelumnya kalau masih jalan
   if (typeWriterInterval) clearInterval(typeWriterInterval);
 
   let i = 0;
   typeWriterInterval = setInterval(() => {
-    el.textContent += text[i];
-    i++;
-    if (i >= text.length) {
+    if (i < text.length) {
+      el.textContent += text[i];
+      i++;
+    } else {
       clearInterval(typeWriterInterval);
       typeWriterInterval = null;
     }
@@ -81,4 +81,90 @@ function nextDialog() {
     return;
   }
   showDialog();
+}
+
+function showTransitionDialog(lines, callback) {
+  console.log("showTransitionDialog dipanggil, lines:", lines);
+  let idx = 0;
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(13,13,26,0.97);
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    z-index: 999; cursor: pointer;
+  `;
+
+  overlay.innerHTML = `
+    <div style="background:rgba(10,10,20,0.97); border-top:2px solid #e94560; padding:24px 48px 20px; min-height:150px;">
+      <div id="trans-name" style="font-family:monospace; font-size:16px; color:#4ecca3; margin-bottom:12px; letter-spacing:2px;">ARIA</div>
+      <div id="trans-text" style="font-size:16px; line-height:1.8; color:#e8e8f0;"></div>
+      <div style="text-align:right; color:#533483; font-size:12px; margin-top:12px;">[ KLIK UNTUK LANJUT ]</div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  function showLine() {
+    const rawText = lines[idx];
+    const nameEl = overlay.querySelector("#trans-name");
+    const textEl = overlay.querySelector("#trans-text");
+
+    // Tentukan nama
+    if (rawText.startsWith("[ AHMAD")) {
+      nameEl.textContent = "AHMAD — via intercom";
+      nameEl.style.color = "#ff9800";
+    } else if (rawText.startsWith("[ Reza")) {
+      nameEl.textContent = "Reza";
+      nameEl.style.color = "#e94560";
+    } else if (rawText.startsWith("[ ARIA")) {
+      nameEl.textContent = "ARIA";
+      nameEl.style.color = "#4ecca3";
+    } else if (rawText.startsWith("[ SISTEM")) {
+      nameEl.textContent = "SISTEM";
+      nameEl.style.color = "#f5a623";
+    } else {
+      nameEl.textContent = "ARIA";
+      nameEl.style.color = "#4ecca3";
+    }
+
+    // Bersihkan prefix [ NAMA ]: kalau ada, kalau tidak ada tampilkan apa adanya
+    const colonIdx = rawText.indexOf("]: ");
+    const displayText = colonIdx !== -1 ? rawText.slice(colonIdx + 3) : rawText;
+
+    textEl.textContent = "";
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < displayText.length) {
+        textEl.textContent += displayText[i];
+        i++;
+      } else {
+        clearInterval(interval);
+        overlay._interval = null;
+      }
+    }, 25);
+
+    overlay._interval = interval;
+    overlay._fullText = displayText;
+  }
+
+  showLine();
+
+  overlay.addEventListener("click", () => {
+    if (overlay._interval) {
+      clearInterval(overlay._interval);
+      overlay._interval = null;
+      overlay.querySelector("#trans-text").textContent = overlay._fullText;
+      return;
+    }
+    idx++;
+    if (idx >= lines.length) {
+      document.body.removeChild(overlay);
+      callback();
+      return;
+    }
+    showLine();
+  });
 }
